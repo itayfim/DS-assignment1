@@ -1,4 +1,5 @@
 #include "mainHeader.h"
+#include "Stack.h"
 
 using namespace std;
 
@@ -13,6 +14,27 @@ void getRoads(Country& country, int numOfRoads, int numOfCities)
 		country.getCity(first - 1).insertCity(new1);
 		City* new2 = new City(first);
 		country.getCity(second - 1).insertCity(new2);
+	}
+	removeDuplicates(country);
+}
+
+void removeDuplicates(Country& country)
+{
+	int size = country.getSize();
+	City* curr = nullptr, * temp = nullptr;
+	for (int i = 0; i < size; i++)
+	{
+		curr = country.getCity(i).getHead()->getNext();
+		while (curr->getNext() != nullptr)
+		{
+			if (curr->getSerialNum() == curr->getNext()->getSerialNum())
+			{
+				temp = curr->getNext();
+				curr->setNext(curr->getNext()->getNext());
+				delete temp;
+			}
+			curr = curr->getNext();
+		}
 	}
 }
 
@@ -40,14 +62,82 @@ void getDestAndStart(int& detination, int& startingPoint, int numOfCities)
 	} while (!goodInput);
 }
 
+int TownDistance(Country& country, List& currCity, List& destCity, int* colors)
+{
+	Stack S;
+	SBullet curr;
+	int returnFromRec = 0, dist = INVALID;
+	setFieldForCurr(curr, &currCity, currCity.getHead()->getNext(), INVALID, START);
+	do {
+		if (returnFromRec)
+			curr = S.Pop();
+		if (curr.getLine() == START)
+		{
+			country.setBlack(country.getCityIndex(currCity));
+			if (&currCity == &destCity)
+			{
+				returnFromRec = 1;
+				dist = 0;
+			}
+			else
+			{
+				if (country.onlyBlackCities(currCity))
+					return INVALID;
+				else
+				{
+					dist = INVALID;
+					City* traveler = curr.getCurrList()->getHead()->getNext();
+					while (traveler != nullptr)
+					{
+						if (country.getColor(traveler->getSerialNum() - 1) == WHITE)
+						{
+							dist++;
+							curr.setD(dist);
+							curr.setLine(AFTER);
+							S.Push(curr);
+							curr.setCurrList(&(country.getCity(traveler->getSerialNum() - 1)));
+							curr.setLine(START);
+							if (curr.getCurrList() == &destCity) 
+							{
+								returnFromRec = 1;
+								curr.setD(0);
+								break;
+							}
+							country.setBlack(country.getCityIndex(*curr.getCurrList()));
+							returnFromRec = 0;
+						}
+						traveler = traveler->getNext();
+					}
+				}
+			}
+		}
+		else if (curr.getLine() == AFTER)
+		{
+			returnFromRec = 1;
+			if (curr.getD() == INVALID)
+				return INVALID;
+			dist = curr.getD() + 1;
+		}
+	} while (!S.isEmpty());
+	return dist;
+}
+
+void setFieldForCurr(SBullet& curr, List* currList, City* currCity, int d, int line)
+{
+	curr.setCurrList(currList);
+	curr.setCurrCity(currCity);
+	curr.setD(d);
+	curr.setLine(line);
+}
+
 int TownDistanceRec(Country& country, List& currCity, List& destCity, int* colors)
 {
-	colors[country.getCityIndex(currCity)] = BLACK;
+	country.setBlack(country.getCityIndex(currCity));
 	if (&currCity == &destCity)
 		return 0;
 	else 
 	{
-		if (onlyBlackCities(currCity, colors))
+		if (country.onlyBlackCities(currCity))
 			return INVALID;
 		else
 		{
@@ -55,7 +145,7 @@ int TownDistanceRec(Country& country, List& currCity, List& destCity, int* color
 			City* curr = currCity.getHead()->getNext();
 			while (curr != nullptr)
 			{
-				if (colors[curr->getSerialNum() - 1] == WHITE)
+				if(country.getColor(curr->getSerialNum() - 1) == WHITE)
 				{
 					d = TownDistanceRec(country, country.getCity(curr->getSerialNum() - 1), destCity, colors);
 					if (d != INVALID)
@@ -68,15 +158,3 @@ int TownDistanceRec(Country& country, List& currCity, List& destCity, int* color
 	}
 }
 
-bool onlyBlackCities(List& currCity, int* colors)
-{
-	bool res = true;
-	City* curr = currCity.getHead()->getNext();
-	while (curr != nullptr)
-	{
-		if (colors[curr->getSerialNum() - 1] == WHITE)
-			return false;
-		curr = curr->getNext();
-	}
-	return res;
-}

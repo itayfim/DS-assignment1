@@ -144,12 +144,15 @@
     <ClCompile Include="Functions.cpp" />
     <ClCompile Include="List.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Stack.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="City.h" />
     <ClInclude Include="Country.h" />
     <ClInclude Include="List.h" />
     <ClInclude Include="mainHeader.h" />
+    <ClInclude Include="SBullet.h" />
+    <ClInclude Include="Stack.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

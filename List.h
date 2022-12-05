@@ -12,7 +12,7 @@ private:
 
 public:
 	List(); // with dummy head
-	List(const List& other) = delete;
+	List(const List& other) { head = other.head; tail = other.tail; }
 	~List();
 	void insertCity(City* toInsert); // in a sorted manner
 	bool isEmpty() const;
