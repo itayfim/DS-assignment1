@@ -71,56 +71,64 @@ int TownDistance(Country& country, List& currCity, List& destCity, int* colors)
 	do {
 		if (returnFromRec)
 			curr = S.Pop();
+		if (curr.getLine() == AFTER)
+		{
+			returnFromRec = 1;
+			if (dist != INVALID)
+			{
+				curr.setD(dist);
+				dist = curr.getD() + 1;
+			}
+			else
+			{
+				curr.setCurrCity(curr.getCurrCity()->getNext());
+				if (curr.getCurrCity() != nullptr)
+				{
+					curr.setLine(START);
+					returnFromRec = 0;
+				}
+			}
+		}
 		if (curr.getLine() == START)
 		{
-			country.setBlack(country.getCityIndex(currCity));
-			if (&currCity == &destCity)
+			country.setBlack(country.getCityIndex(*curr.getCurrList()));
+			if (curr.getCurrList() == &destCity)
 			{
 				returnFromRec = 1;
 				dist = 0;
 			}
 			else
 			{
-				if (country.onlyBlackCities(currCity))
-					return INVALID;
+				if (country.onlyBlackCities(*curr.getCurrList()))
+				{
+					returnFromRec = 1;
+					dist = INVALID;
+				}
 				else
 				{
 					dist = INVALID;
-					City* traveler = curr.getCurrList()->getHead()->getNext();
-					while (traveler != nullptr)
+					if (curr.getCurrCity() != nullptr)
 					{
-						if (country.getColor(traveler->getSerialNum() - 1) == WHITE)
+						if (country.getColor(curr.getCurrCity()->getSerialNum() - 1) == WHITE)
 						{
-							dist++;
 							curr.setD(dist);
 							curr.setLine(AFTER);
 							S.Push(curr);
-							curr.setCurrList(&(country.getCity(traveler->getSerialNum() - 1)));
+							curr.setCurrList(&(country.getCity(curr.getCurrCity()->getSerialNum() - 1)));
+							curr.setCurrCity(curr.getCurrList()->getHead()->getNext());
 							curr.setLine(START);
-							if (curr.getCurrList() == &destCity) 
-							{
-								returnFromRec = 1;
-								curr.setD(0);
-								break;
-							}
-							country.setBlack(country.getCityIndex(*curr.getCurrList()));
 							returnFromRec = 0;
 						}
-						traveler = traveler->getNext();
+						else
+							curr.setCurrCity(curr.getCurrCity()->getNext());
 					}
 				}
 			}
 		}
-		else if (curr.getLine() == AFTER)
-		{
-			returnFromRec = 1;
-			if (curr.getD() == INVALID)
-				return INVALID;
-			dist = curr.getD() + 1;
-		}
 	} while (!S.isEmpty());
 	return dist;
 }
+
 
 void setFieldForCurr(SBullet& curr, List* currList, City* currCity, int d, int line)
 {
