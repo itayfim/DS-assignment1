@@ -11,6 +11,7 @@ class SBullet
 {
 private:
 	SBullet* next = nullptr;
+	// local var's of the recursive function
 	List* currList;
 	City* currCity;
 	int d;

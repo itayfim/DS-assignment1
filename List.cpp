@@ -33,7 +33,7 @@ void List::insertCity(City* toInsert) // in a sorted manner
 		while (curr != nullptr && !founded)
 		{
 			if (toInsert->getSerialNum() > curr->getSerialNum()
-				&& toInsert->getSerialNum() < curr->getNext()->getSerialNum()) // curr->getNext != nullptr anyway
+				&& toInsert->getSerialNum() < curr->getNext()->getSerialNum()) // curr->getNext() != nullptr anyway
 			{
 				toInsert->setNext(curr->getNext());
 				curr->setNext(toInsert);

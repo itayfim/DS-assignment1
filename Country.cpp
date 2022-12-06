@@ -6,7 +6,7 @@ Country::Country(int size)
 {
 	cities = new List[size];
 	colors = new int[size];
-	for (int i = 0; i < size; i++)
+	for (int i = 0; i < size; i++) // setting "whites" in the colors array
 		colors[i] = WHITE;
 	this->size = size;
 }

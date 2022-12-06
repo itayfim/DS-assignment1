@@ -3,7 +3,7 @@
 
 using namespace std;
 
-Stack::Stack()
+Stack::Stack() // default c'tor
 {
 }
 
